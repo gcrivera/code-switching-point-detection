@@ -1,0 +1,11 @@
+ALAM_WITHEVENT_ARB_20070116_205800 sox /data/sls/qcri-scratch2/amali/data/GALE/LDC2013S02/gale_p2_arb_bc_speech_p1_d1/data/ALAM_WITHEVENT_ARB_20070116_205800.wav -r 16000 -t wav - |
+ALAM_WITHEVENT_ARB_20070130_205800 sox /data/sls/qcri-scratch2/amali/data/GALE/LDC2013S02/gale_p2_arb_bc_speech_p1_d1/data/ALAM_WITHEVENT_ARB_20070130_205800.wav -r 16000 -t wav - |
+ALAM_WITHEVENT_ARB_20070206_205801 sox /data/sls/qcri-scratch2/amali/data/GALE/LDC2013S07/gale_p2_arb_bc_spch_p2_d1/data/ALAM_WITHEVENT_ARB_20070206_205801.flac -r 16000 -t wav - |
+ALAM_WITHEVENT_ARB_20070213_205800 sox /data/sls/qcri-scratch2/amali/data/GALE/LDC2013S07/gale_p2_arb_bc_spch_p2_d1/data/ALAM_WITHEVENT_ARB_20070213_205800.flac -r 16000 -t wav - |
+ALAM_WITHEVENT_ARB_20070227_205800 sox /data/sls/qcri-scratch2/amali/data/GALE/LDC2013S07/gale_p2_arb_bc_spch_p2_d1/data/ALAM_WITHEVENT_ARB_20070227_205800.flac -r 16000 -t wav - |
+ALAM_WITHEVENT_ARB_20070306_205800 sox /data/sls/qcri-scratch2/amali/data/GALE/LDC2013S07/gale_p2_arb_bc_spch_p2_d1/data/ALAM_WITHEVENT_ARB_20070306_205800.flac -r 16000 -t wav - |
+ALAM_WITHEVENT_ARB_20070313_205800 sox /data/sls/qcri-scratch2/amali/data/GALE/LDC2013S07/gale_p2_arb_bc_spch_p2_d1/data/ALAM_WITHEVENT_ARB_20070313_205800.flac -r 16000 -t wav - |
+ARABIYA_FROMIRAQ_ARB_20070216_175800 sox /data/sls/qcri-scratch2/amali/data/GALE/LDC2013S07/gale_p2_arb_bc_spch_p2_d1/data/ARABIYA_FROMIRAQ_ARB_20070216_175800.flac -r 16000 -t wav - |
+ARABIYA_FROMIRAQ_ARB_20070223_175801 sox /data/sls/qcri-scratch2/amali/data/GALE/LDC2013S07/gale_p2_arb_bc_spch_p2_d1/data/ARABIYA_FROMIRAQ_ARB_20070223_175801.flac -r 16000 -t wav - |
+ARABIYA_FROMIRAQ_ARB_20070302_175801 sox /data/sls/qcri-scratch2/amali/data/GALE/LDC2013S07/gale_p2_arb_bc_spch_p2_d1/data/ARABIYA_FROMIRAQ_ARB_20070302_175801.flac -r 16000 -t wav - |
+ARABIYA_FROMIRAQ_ARB_20070309_175800 sox /data/sls/qcri-scratch2/amali/data/GALE/LDC2013S07/gale_p2_arb_bc_spch_p2_d1/data/ARABIYA_FROMIRAQ_ARB_20070309_175800.flac -r 16000 -t wav - |
