@@ -88,6 +88,11 @@ def extract(window, num_features):
     transcription_lines = transcription_file.readlines()
     transcription_file.close()
 
+    train_non_switch = []
+    train_switch = []
+    test_non_switch = []
+    test_switch = []
+
     print 'Generating features...'
     for line in tqdm(transcription_lines):
         line_data = line.split()
@@ -104,10 +109,10 @@ def extract(window, num_features):
         alignment_data = word_alignments[alignment_identifier]
 
         if file in locations_train:
-            test_or_train = 'train'
+            test = False
             file_location = locations_train[file]
         else:
-            test_or_train = 'test'
+            test = True
             file_location = locations_test[file]
 
         file_location = 'data/ABUDHABI_ABUDHNEWS_ARB_20070206_115800.flac'
@@ -148,5 +153,26 @@ def extract(window, num_features):
                         switch_idxs.append(idx+2)
                     record_switch = False
 
-        print switch_idxs
+        for i in range(Y.shape[1]):
+            if i in switch_idxs:
+                if test:
+                    test_switch.append(Y[:,i])
+                else:
+                    train_switch.append(Y[:,i])
+            else:
+                if test:
+                    test_non_switch.append(Y[:,i])
+                else:
+                    train_non_switch.append(Y[:,i])
         break
+
+    np.save('data/train_non_switch_w_' + str(window/16) + '_f_' + str(num_features) + '.npy',
+                train_non_switch)
+    np.save('data/train_switch_w_' + str(window/16) + '_f_' + str(num_features) + '.npy',
+                train_switch)
+    np.save('data/test_non_switch_w_' + str(window/16) + '_f_' + str(num_features) + '.npy',
+                test_non_switch)
+    np.save('data/test_switch_w_' + str(window/16) + '_f_' + str(num_features) + '.npy',
+                test_switch)
+
+    return
