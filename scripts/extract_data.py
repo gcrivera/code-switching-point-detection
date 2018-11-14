@@ -115,7 +115,6 @@ def extract(window, num_features):
             test = True
             file_location = locations_test[file]
 
-        file_location = 'data/ABUDHABI_ABUDHNEWS_ARB_20070206_115800.flac'
         y, sr = sf.read(file_location, start=int(16000*start), stop=int(16000*stop)+1)
         # each column represents 0.01 second
         mfcc = librosa.feature.mfcc(y, sr, n_mfcc=num_features, n_fft=window, hop_length=160, fmin=133, fmax=6955)
