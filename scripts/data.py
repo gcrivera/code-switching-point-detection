@@ -3,15 +3,15 @@ import numpy as np
 import soundfile as sf
 from tqdm import tqdm
 
-# Create npy files - train_non_switch.npy, train_switch.npy, test_non_switch.npy, test_switch.npy
-# try 75 ms, 100 ms, 150 ms windows
-# TODO: Read through text.bw
-# For each utterance decide where switch points are using word_align
-# Figure out where file is located and test or train
-# extract MFCC features
-# normalize
-# put into correct numpy arrays
-# write numpy arrays to disk
+def load(window, num_features, test=False):
+    if test:
+        switch = np.load('data/test_switch_w_' + str(window) + '_f_' + str(num_features) + '.npy')
+        non_switch = np.load('data/test_non_switch_w_' + str(window) + '_f_' + str(num_features) + '.npy')
+    else:
+        switch = np.load('data/train_switch_w_' + str(window) + '_f_' + str(num_features) + '.npy')
+        non_switch = np.load('data/train_non_switch_w_' + str(window) + '_f_' + str(num_features) + '.npy')
+
+    return (switch, non_switch)
 
 def get_file_locations():
     audio_locations_train = open('data/wav_train.scp')
