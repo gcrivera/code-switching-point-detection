@@ -1,7 +1,7 @@
 import argparse
-import bob.learn.em as em
-from bob.io.base import HDF5File
-from scripts import data, classify, evaluate
+# import bob.learn.em as em
+# from bob.io.base import HDF5File
+from scripts import data#, classify, evaluate
 
 parser = argparse.ArgumentParser(description='Baseline Code-switching Classifier')
 

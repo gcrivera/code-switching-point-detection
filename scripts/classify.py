@@ -1,6 +1,6 @@
-import bob.learn.em as em
+# import bob.learn.em as em
 import numpy as np
-from bob.io.base import HDF5File
+# from bob.io.base import HDF5File
 
 def fit_ubm(switch_data, non_switch_data, num_components, save_path):
     print('Generating UBM...')
