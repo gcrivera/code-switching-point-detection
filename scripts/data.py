@@ -163,7 +163,6 @@ def extract(window, num_features):
                     test_non_switch.append(Y[:,i])
                 else:
                     train_non_switch.append(Y[:,i])
-        break
 
     np.save('data/train_non_switch_w_' + str(window/16) + '_f_' + str(num_features) + '.npy',
                 train_non_switch)
