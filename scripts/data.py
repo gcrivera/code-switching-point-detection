@@ -143,6 +143,7 @@ def extract(window, num_features):
                 continue
             else:
                 print alignment_identifier
+                print alignment_data
                 print utterance_words
                 word_data = alignment_data.pop(0)
                 if record_switch:
