@@ -98,8 +98,14 @@ def extract(window, num_features):
     test_switch = []
 
     missing_word_alignments = 0
+    num_collision = 0
+    skip = False
     print 'Generating features...'
-    for line in tqdm(transcription_lines):
+    for i,line in tqdm(enumerate(transcription_lines)):
+        if skip:
+            skip = False
+            continue
+
         line_data = line.split()
         utterance_data = line_data[0]
         utterance_words = line_data[1:]
@@ -110,6 +116,16 @@ def extract(window, num_features):
         alignment_identifier = utterance_data.split('.')[0]
         start = float(utterance_data_list[-2])
         stop = float(utterance_data_list[-1])
+
+        line_data_1 = transcription_lines[i+1].split()
+        utterance_data_1 = line_data_1[0]
+        utterance_data_list_1 = utterance_data_1.split('_')
+        alignment_identifier_1 = utterance_data_1.split('.')[0]
+
+        if alignment_identifier == alignment_identifier_1:
+            skip = True
+            num_collision += 1
+            continue
 
         try:
             alignment_data = word_alignments[alignment_identifier]
@@ -195,5 +211,6 @@ def extract(window, num_features):
                 test_switch)
 
     print 'Total missing word alignments: ' + str(missing_word_alignments)
+    print 'Total number of collisions: ' + str(num_collision)
 
     return
