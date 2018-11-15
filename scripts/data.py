@@ -139,8 +139,8 @@ def extract(window, num_features):
         switch_idxs = []
         for i in range(len(utterance_words)):
             word = utterance_words[i]
-            if word == '((' or word == '))' or word == '=' or word == '+'
-                or word == '(' or word == ')' or word == '<noise>' or word == '</noise>':
+            if (word == '((' or word == '))' or word == '=' or word == '+'
+                or word == '(' or word == ')' or word == '<noise>' or word == '</noise>'):
                 continue
             elif (word == '<non-MSA>' and i != 0) or word == '</non-MSA>':
                 record_switch = True
