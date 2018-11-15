@@ -93,6 +93,7 @@ def extract(window, num_features):
     test_non_switch = []
     test_switch = []
 
+    missing_word_alignments = 0
     print 'Generating features...'
     for line in tqdm(transcription_lines):
         line_data = line.split()
@@ -106,7 +107,11 @@ def extract(window, num_features):
         start = float(utterance_data_list[-2])
         stop = float(utterance_data_list[-1])
 
-        alignment_data = word_alignments[alignment_identifier]
+        try:
+            alignment_data = word_alignments[alignment_identifier]
+        except:
+            missing_word_alignments += 1
+            continue
 
         if file in locations_train:
             test = False
@@ -174,5 +179,7 @@ def extract(window, num_features):
                 test_non_switch)
     np.save('data/test_switch_w_' + str(window/16) + '_f_' + str(num_features) + '.npy',
                 test_switch)
+
+    print 'Total missing word alignments: ' + str(missing_word_alignments)
 
     return
