@@ -98,6 +98,7 @@ def extract(window, num_features):
     test_switch = []
 
     missing_word_alignments = 0
+    misalignments = 0
     num_collision = 0
     skip = False
     print 'Generating features...'
@@ -133,6 +134,16 @@ def extract(window, num_features):
             missing_word_alignments += 1
             continue
 
+        utterance_words = filter(lambda word: not (word == '((' or word == '))' or word == '=' or word == '+'
+                                                    or word == '(' or word == ')' or word == '<noise>' or word == '</noise>'
+                                                    or word == '++' or word == '-' or word == '))('), utterance_words)
+
+        utterance_words_no_tags = filter(lambda word: not (word == '<non-MSA>' or word == '</non-MSA>'), utterance_words)
+
+        if len(utterance_words_no_tags) != len(alignment_data):
+            misalignments += 1
+            continue
+
         if file in locations_train:
             test = False
             file_location = locations_train[file]
@@ -155,11 +166,7 @@ def extract(window, num_features):
         switch_idxs = []
         for i in range(len(utterance_words)):
             word = utterance_words[i]
-            if (word == '((' or word == '))' or word == '=' or word == '+'
-                or word == '(' or word == ')' or word == '<noise>' or word == '</noise>'
-                or word == '++' or word == '-' or word == '))('):
-                continue
-            elif (word == '<non-MSA>' and i != 0) or word == '</non-MSA>':
+            if (word == '<non-MSA>' and i != 0) or word == '</non-MSA>':
                 record_switch = True
                 continue
             elif word == '<non-MSA>' and i == 0:
@@ -212,5 +219,6 @@ def extract(window, num_features):
 
     print 'Total missing word alignments: ' + str(missing_word_alignments)
     print 'Total number of collisions: ' + str(num_collision)
+    print 'Total number of misalignments: ' + str(misalignments)
 
     return
