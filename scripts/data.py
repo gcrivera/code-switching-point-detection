@@ -139,7 +139,8 @@ def extract(window, num_features):
         switch_idxs = []
         for i in range(len(utterance_words)):
             word = utterance_words[i]
-            if word == '((' or word == '))' or word == '=' or word == '+' or word == '(' or word == ')':
+            if word == '((' or word == '))' or word == '=' or word == '+'
+                or word == '(' or word == ')' or word == '<noise>' or word == '</noise>':
                 continue
             elif (word == '<non-MSA>' and i != 0) or word == '</non-MSA>':
                 record_switch = True
@@ -147,9 +148,6 @@ def extract(window, num_features):
             elif word == '<non-MSA>' and i == 0:
                 continue
             else:
-                print alignment_identifier
-                print alignment_data
-                print utterance_words[i:]
                 word_data = alignment_data.pop(0)
                 if record_switch:
                     # Add features for switch point
