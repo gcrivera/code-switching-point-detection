@@ -146,6 +146,9 @@ def extract(window, num_features):
             elif word == '<non-MSA>' and i == 0:
                 continue
             else:
+                print alignment_identifier
+                print utterance_words
+                print alignment_data
                 word_data = alignment_data.pop(0)
                 if record_switch:
                     # Add features for switch point
