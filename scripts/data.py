@@ -118,15 +118,16 @@ def extract(window, num_features):
         start = float(utterance_data_list[-2])
         stop = float(utterance_data_list[-1])
 
-        line_data_1 = transcription_lines[i+1].split()
-        utterance_data_1 = line_data_1[0]
-        utterance_data_list_1 = utterance_data_1.split('_')
-        alignment_identifier_1 = utterance_data_1.split('.')[0]
+        if i < len(transcription_lines) - 1:
+            line_data_1 = transcription_lines[i+1].split()
+            utterance_data_1 = line_data_1[0]
+            utterance_data_list_1 = utterance_data_1.split('_')
+            alignment_identifier_1 = utterance_data_1.split('.')[0]
 
-        if alignment_identifier == alignment_identifier_1:
-            skip = True
-            num_collision += 1
-            continue
+            if alignment_identifier == alignment_identifier_1:
+                skip = True
+                num_collision += 1
+                continue
 
         try:
             alignment_data = word_alignments[alignment_identifier]
