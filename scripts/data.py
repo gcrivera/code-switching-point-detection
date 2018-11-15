@@ -56,6 +56,10 @@ def get_word_alignments():
         else:
             word_alignments[utterance] = [alignment_data]
 
+    for utterance in word_alignments.keys():
+        utterance_alignments = word_alignments[utterance]
+        word_alignments[utterance] = sorted(utterance_alignments, key=lambda x: x[1][0])
+
     return word_alignments
 
 def cmvn_slide(X, win_len=300, cmvn=False):
@@ -135,16 +139,13 @@ def extract(window, num_features):
         switch_idxs = []
         for i in range(len(utterance_words)):
             word = utterance_words[i]
-            if word == '((' or word == '))' or word == '=':
+            if word == '((' or word == '))' or word == '=' or word == '+':
                 continue
             elif (word == '<non-MSA>' and i != 0) or word == '</non-MSA>':
                 record_switch = True
             elif word == '<non-MSA>' and i == 0:
                 continue
             else:
-                print alignment_identifier
-                print alignment_data
-                print utterance_words
                 word_data = alignment_data.pop(0)
                 if record_switch:
                     # Add features for switch point
