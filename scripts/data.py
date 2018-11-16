@@ -36,9 +36,10 @@ def resample():
     train_switch = np.load('data/train_switch_w_64_f_20.npy')
     train_non_switch = np.load('data/train_non_switch_w_64_f_20.npy')
 
-    resample_train = SMOTETomek(sampling_strategy='all')
-    resampe_test = SMOTETomek(sampling_strategy='all')
+    resample_train = SMOTETomek(sampling_strategy='all', n_jobs=6)
+    resampe_test = SMOTETomek(sampling_strategy='all', n_jobs=6)
 
+    print('Beginning train resample...')
     X = np.concatenate((train_switch, train_non_switch))
     y = np.concatenate((np.zeros(train_switch.shape[0]), np.ones(train_non_switch.shape[0])))
     X_res, y_res = resample_train.fit_resample(X, y)
@@ -54,6 +55,7 @@ def resample():
     np.save('data/train_switch_w_64_f_20_samp.npy', np.array(train_switch))
     np.save('data/train_non_switch_w_64_f_20_samp.npy', np.array(train_non_switch))
 
+    print('Beginning test resample...')
     X = np.concatenate((test_switch, test_non_switch))
     y = np.concatenate((np.zeros(test_switch.shape[0]), np.ones(test_non_switch.shape[0])))
     X_res, y_res = resample_test.fit_resample(X, y)
