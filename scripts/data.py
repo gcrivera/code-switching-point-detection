@@ -1,4 +1,5 @@
-from imblearn.over_sampling import RandomOverSampler
+from imblearn.over_sampling import SMOTE
+from imblearn.under_sampling import TomekLinks
 from imblearn.combine import SMOTETomek
 import librosa
 import numpy as np
@@ -36,8 +37,8 @@ def resample():
     train_switch = np.load('data/train_switch_w_64_f_20.npy')
     train_non_switch = np.load('data/train_non_switch_w_64_f_20.npy')
 
-    resample_train = SMOTETomek(sampling_strategy='all', n_jobs=6)
-    resampe_test = SMOTETomek(sampling_strategy='all', n_jobs=6)
+    resample_train = SMOTETomek(sampling_strategy='all', smote=SMOTE(n_jobs=4), tomek=TomekLinks(n_jobs=4))
+    resampe_test = SMOTETomek(sampling_strategy='all', smote=SMOTE(n_jobs=4), tomek=TomekLinks(n_jobs=4))
 
     print('Beginning train resample...')
     X = np.concatenate((train_switch, train_non_switch))
