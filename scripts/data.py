@@ -1,3 +1,5 @@
+from imblearn.over_sampling import RandomOverSampler
+from imblearn.combine import SMOTETomek
 import librosa
 import numpy as np
 import soundfile as sf
@@ -11,7 +13,62 @@ def load(window, num_features, test=False):
         switch = np.load('data/train_switch_w_' + str(window) + '_f_' + str(num_features) + '.npy')
         non_switch = np.load('data/train_non_switch_w_' + str(window) + '_f_' + str(num_features) + '.npy')
 
-    return (switch, non_switch)
+    resample = RandomOverSampler()
+
+    non_switch = non_switch[:int(non_switch.shape[0] / 10)]
+    X = np.concatenate((switch, non_switch))
+    y = np.concatenate((np.zeros(switch.shape[0]), np.ones(non_switch.shape[0])))
+    X_res, y_res = resample.fit_resample(X, y)
+
+    switch = []
+    non_switch = []
+    for i in range(X_res.shape[0]):
+        if y_res[i] == 0:
+            switch.append(X_res[i])
+        else:
+            non_switch.append(X_res[i])
+
+    return (np.array(switch), np.array(non_switch))
+
+def resample():
+    test_switch = np.load('data/test_switch_w_64_f_20.npy')
+    test_non_switch = np.load('data/test_non_switch_w_64_f_20.npy')
+    train_switch = np.load('data/train_switch_w_64_f_20.npy')
+    train_non_switch = np.load('data/train_non_switch_w_64_f_20.npy')
+
+    resample_train = SMOTETomek(sampling_strategy='all')
+    resampe_test = SMOTETomek(sampling_strategy='all')
+
+    X = np.concatenate((train_switch, train_non_switch))
+    y = np.concatenate((np.zeros(train_switch.shape[0]), np.ones(train_non_switch.shape[0])))
+    X_res, y_res = resample_train.fit_resample(X, y)
+
+    train_switch = []
+    train_non_switch = []
+    for i in range(X_res.shape[0]):
+        if y_res[i] == 0:
+            train_switch.append(X_res[i])
+        else:
+            train_non_switch.append(X_res[i])
+
+    np.save('data/train_switch_w_64_f_20_samp.npy', np.array(train_switch))
+    np.save('data/train_non_switch_w_64_f_20_samp.npy', np.array(train_non_switch))
+
+    X = np.concatenate((test_switch, test_non_switch))
+    y = np.concatenate((np.zeros(test_switch.shape[0]), np.ones(test_non_switch.shape[0])))
+    X_res, y_res = resample_test.fit_resample(X, y)
+
+    test_switch = []
+    test_non_switch = []
+    for i in range(X_res.shape[0]):
+        if y_res[i] == 0:
+            test_switch.append(X_res[i])
+        else:
+            test_non_switch.append(X_res[i])
+
+    np.save('data/test_switch_w_64_f_20_samp.npy', np.array(test_switch))
+    np.save('data/test_non_switch_w_64_f_20_samp.npy', np.array(test_non_switch))
+    return
 
 def get_file_locations():
     audio_locations_train = open('data/wav_train.scp')
@@ -19,7 +76,7 @@ def get_file_locations():
     audio_locations_train.close()
 
     locations_train = {}
-    print 'Loading train file locations...'
+    print('Loading train file locations...')
     for line in tqdm(audio_location_lines_train):
         line_data = line.split()
         if len(line_data) > 2:
@@ -30,7 +87,7 @@ def get_file_locations():
     audio_locations_test.close()
 
     locations_test = {}
-    print 'Loading test file locations...'
+    print('Loading test file locations...')
     for line in tqdm(audio_location_lines_test):
         line_data = line.split()
         if len(line_data) > 2:
@@ -44,7 +101,7 @@ def get_word_alignments():
     word_alignment_file.close()
 
     word_alignments = {}
-    print 'Loading word alignments...'
+    print('Loading word alignments...')
     for line in tqdm(word_alignment_lines):
         line_data = line.split()
         utterance_list = line_data[0].split('_')[:-1]
@@ -101,7 +158,7 @@ def extract(window, num_features):
     misalignments = 0
     num_collision = 0
     skip = False
-    print 'Generating features...'
+    print('Generating features...')
     for i,line in tqdm(enumerate(transcription_lines)):
         if skip:
             skip = False
@@ -176,10 +233,10 @@ def extract(window, num_features):
                 try:
                     word_data = alignment_data.pop(0)
                 except:
-                    print 'ERROR'
-                    print alignment_identifier
-                    print alignment_data
-                    print utterance_words[i:]
+                    # print 'ERROR'
+                    # print alignment_identifier
+                    # print alignment_data
+                    # print utterance_words[i:]
                     exit()
                 if record_switch:
                     # Add features for switch point
@@ -218,8 +275,8 @@ def extract(window, num_features):
     np.save('data/test_switch_w_' + str(window/16) + '_f_' + str(num_features) + '.npy',
                 test_switch)
 
-    print 'Total missing word alignments: ' + str(missing_word_alignments)
-    print 'Total number of collisions: ' + str(num_collision)
-    print 'Total number of misalignments: ' + str(misalignments)
+    print('Total missing word alignments: ' + str(missing_word_alignments))
+    print('Total number of collisions: ' + str(num_collision))
+    print('Total number of misalignments: ' + str(misalignments))
 
     return

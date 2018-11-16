@@ -1,36 +1,33 @@
 from tqdm import tqdm
+import numpy as np
 
 def split_data():
-    transcription = open('data/text.bw')
-    transcription_lines = transcription.readlines()
-    transcription.close()
+    train_13_non = np.load('data/train_non_switch_w_64_f_13.npy')
+    train_13_switch = np.load('data/train_switch_w_64_f_13.npy')
+    train_20_non = np.load('data/train_non_switch_w_64_f_20.npy')
+    train_20_switch = np.load('data/train_switch_w_64_f_20.npy')
+    np.random.shuffle(train_13_non)
+    np.random.shuffle(train_13_switch)
+    np.random.shuffle(train_20_non)
+    np.random.shuffle(train_20_switch)
 
-    audio_locations_train = open('data/wav_train.scp')
-    audio_location_lines_train = audio_locations_train.readlines()
+    total_non = train_13_non.shape[0]
+    total_switch = train_13_switch.shape[0]
 
-    locations_train = {}
-    print 'Loading train file locations...'
-    for line in tqdm(audio_location_lines_train):
-        line_data = line.split()
-        if len(line_data) > 2:
-            locations_train[line_data[0]] = line_data[2]
+    train_non_idx = int(total_non * 0.7)
+    train_switch_idx = int(total_switch * 0.7)
 
-    audio_locations_test = open('data/wav_test.scp')
-    audio_location_lines_test = audio_locations_test.readlines()
+    np.save('data/train_non_switch_w_64_f_13_temp.npy', train_13_non[:train_non_idx])
+    np.save('data/test_non_switch_w_64_f_13_temp.npy', train_13_non[train_non_idx:])
 
-    locations_test = {}
-    print 'Loading test file locations...'
-    for line in tqdm(audio_location_lines_test):
-        line_data = line.split()
-        if len(line_data) > 2:
-            locations_test[line_data[0]] = line_data[2]
+    np.save('data/train_switch_w_64_f_13_temp.npy', train_13_switch[:train_switch_idx])
+    np.save('data/test_switch_w_64_f_13_temp.npy', train_13_switch[train_switch_idx:])
 
-    total_missing = 0
-    for line in transcription_lines:
-        line_data = line.split(' ')
-        filename = ''.join(map(lambda x: x + '_', line_data[0].split('_')[:-2]))[:-1]
-        if filename not in locations_train.keys() and filename not in locations_test.keys():
-            total_missing += 1
+    np.save('data/train_non_switch_w_64_f_20_temp.npy', train_20_non[:train_non_idx])
+    np.save('data/test_non_switch_w_64_f_20_temp.npy', train_20_non[train_non_idx:])
 
-    print 'Total missing from wav_*.scp ' + str(total_missing)
+    np.save('data/train_switch_w_64_f_20_temp.npy', train_20_switch[:train_switch_idx])
+    np.save('data/test_switch_w_64_f_20_temp.npy', train_20_switch[train_switch_idx:])
 
+if __name__ == '__main__':
+    split_data()
