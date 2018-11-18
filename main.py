@@ -19,23 +19,23 @@ parser.add_argument('--load_path', type=str, help='Path to load model from, must
 args = parser.parse_args()
 
 if __name__ == '__main__':
-    data.resample()
+    # data.resample()
 
-    # if args.extract:
-    #     data.extract(args.window*16, args.num_features)
-    # if args.train:
-    #     switch_data, non_switch_data = data.load(args.window, args.num_features)
-    #     ubm = classify.fit_ubm(switch_data, non_switch_data, args.num_components, args.save_path)
-    #     switch_gmm, non_switch_gmm = classify.fit_adap(switch_data, non_switch_data, ubm, args.num_components, args.save_path)
-    # if args.test:
-    #     switch_data, non_switch_data = data.load(args.window, args.num_features, test=True)
-    #     if not args.train:
-    #         try:
-    #             switch_gmm = em.GMMMachine(HDF5File(args.load_path + 'switch.h5'))
-    #             non_switch_gmm = em.GMMMachine(HDF5File(args.load_path + 'non_switch.h5'))
-    #         except :
-    #             print("Models not found."); exit()
-    #     scores = classify.predict(switch_data, non_switch_data, switch_gmm, non_switch_gmm)
-    #     Y,Y_pred = evaluate.get_predictions(scores)
-    #     evaluate.evaluate(Y, Y_pred)
+    if args.extract:
+        data.extract_with_test_utterance(args.window*16, args.num_features)
+    if args.train:
+        switch_data, non_switch_data = data.load(args.window, args.num_features)
+        ubm = classify.fit_ubm(switch_data, non_switch_data, args.num_components, args.save_path)
+        switch_gmm, non_switch_gmm = classify.fit_adap(switch_data, non_switch_data, ubm, args.num_components, args.save_path)
+    if args.test:
+        switch_data, non_switch_data = data.load(args.window, args.num_features, test=True)
+        if not args.train:
+            try:
+                switch_gmm = em.GMMMachine(HDF5File(args.load_path + 'switch.h5'))
+                non_switch_gmm = em.GMMMachine(HDF5File(args.load_path + 'non_switch.h5'))
+            except :
+                print("Models not found."); exit()
+        scores = classify.predict(switch_data, non_switch_data, switch_gmm, non_switch_gmm)
+        Y,Y_pred = evaluate.get_predictions(scores)
+        evaluate.evaluate(Y, Y_pred)
         # evaluate.confusion_matrix(Y, Y_pred)

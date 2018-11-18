@@ -1,10 +1,161 @@
-from imblearn.over_sampling import SMOTE
+from imblearn.over_sampling import SMOTE, RandomOverSampler
 from imblearn.under_sampling import TomekLinks
 from imblearn.combine import SMOTETomek
 import librosa
 import numpy as np
+from random import shuffle
 import soundfile as sf
 from tqdm import tqdm
+
+# format of test data:
+#   test_utterance -> array 3d utterance x frames x features (padded with zeros)
+#   test_switch -> array 2d utterance x frames (padded with zeros) 1 if switch point
+def extract_with_test_utterance(window, num_features):
+    locations_train, locations_test = get_file_locations()
+    word_alignments = get_word_alignments()
+
+    transcription_file = open('data/text.bw')
+    transcription_lines = transcription_file.readlines()
+    transcription_file.close()
+
+    shuffle(transcription_lines)
+
+    test_idx = int(len(transcription_lines) * 0.8)
+
+    train_non_switch = []
+    train_switch = []
+    test_utterance = []
+    test_switch = []
+
+    max_length = 8265
+
+    missing_word_alignments = 0
+    misalignments = 0
+    num_collision = 0
+    skip = False
+    print('Generating features...')
+    for i,line in tqdm(enumerate(transcription_lines)):
+        if skip:
+            skip = False
+            continue
+
+        line_data = line.split()
+        utterance_data = line_data[0]
+        utterance_words = line_data[1:]
+
+        utterance_data_list = utterance_data.split('_')
+
+        file = '_'.join(utterance_data_list[:-2])
+        alignment_identifier = utterance_data.split('.')[0]
+        start = float(utterance_data_list[-2])
+        stop = float(utterance_data_list[-1])
+
+        if i < len(transcription_lines) - 1:
+            line_data_1 = transcription_lines[i+1].split()
+            utterance_data_1 = line_data_1[0]
+            utterance_data_list_1 = utterance_data_1.split('_')
+            alignment_identifier_1 = utterance_data_1.split('.')[0]
+
+            if alignment_identifier == alignment_identifier_1:
+                skip = True
+                num_collision += 1
+                continue
+
+        try:
+            alignment_data = word_alignments[alignment_identifier]
+        except:
+            missing_word_alignments += 1
+            continue
+
+        utterance_words = filter(lambda word: not (word == '((' or word == '))' or word == '=' or word == '+'
+                                                    or word == '(' or word == ')' or word == '<noise>' or word == '</noise>'
+                                                    or word == '++' or word == '-' or word == '))('), utterance_words)
+
+        utterance_words_no_tags = filter(lambda word: not (word == '<non-MSA>' or word == '</non-MSA>'), utterance_words)
+
+        if len(utterance_words_no_tags) != len(alignment_data):
+            misalignments += 1
+            continue
+
+        if file in locations_train:
+            test = False
+            file_location = locations_train[file]
+        else:
+            test = True
+            file_location = locations_test[file]
+
+        y, sr = sf.read(file_location, start=int(16000*start), stop=int(16000*stop)+1)
+        # each column represents 0.01 second
+        mfcc = librosa.feature.mfcc(y, sr, n_mfcc=num_features, n_fft=window, hop_length=160, fmin=133, fmax=6955)
+        width = mfcc.shape[0]
+        if width % 2 == 0:
+            width -= 1
+        mfcc_delta = librosa.feature.delta(mfcc, width=width)
+        mfcc_delta_delta = librosa.feature.delta(mfcc, width=width, order=2)
+        Y = np.concatenate((mfcc, mfcc_delta, mfcc_delta_delta))
+        Y = cmvn_slide(Y, cmvn='m')
+
+        record_switch = False
+        switch_idxs = []
+        for i in range(len(utterance_words)):
+            word = utterance_words[i]
+            if (word == '<non-MSA>' and i != 0) or word == '</non-MSA>':
+                record_switch = True
+                continue
+            elif word == '<non-MSA>' and i == 0:
+                continue
+            else:
+                try:
+                    word_data = alignment_data.pop(0)
+                except:
+                    # print 'ERROR'
+                    # print alignment_identifier
+                    # print alignment_data
+                    # print utterance_words[i:]
+                    exit()
+                if record_switch:
+                    # Add features for switch point
+                    start = word_data[1][0]
+                    idx = int(round(start*100.0))
+                    switch_idxs.append(idx)
+                    # Add features immediately surrounding (+/- 20 ms) switch point
+                    if idx - 2 > -1:
+                        switch_idxs.append(idx-2)
+                    if idx - 1 > -1:
+                        switch_idxs.append(idx-1)
+                    if idx + 1 < Y.shape[1]:
+                        switch_idxs.append(idx+1)
+                    if idx + 2 < Y.shape[1]:
+                        switch_idxs.append(idx+2)
+                    record_switch = False
+
+        if i < test_idx:
+            for i in range(Y.shape[1]):
+                if i in switch_idxs:
+                    train_switch.append(Y[:,i])
+                else:
+                    train_non_switch.append(Y[:,i])
+        else:
+            Y = np.transpose(Y)
+            pad_utterance = np.zeros((max_length - Y.shape[0], num_features*3))
+            pad_switch = np.zeros(max_length - len(switch_idxs))
+            test_utterance.append(np.concatenate((Y, pad_utterance)))
+            test_switch.append(np.concatenate((switch_idxs, pad_switch)))
+
+    np.save('data/qual_train_non_switch_w_' + str(window/16) + '_f_' + str(num_features) + '.npy',
+                train_non_switch)
+    np.save('data/qual_train_switch_w_' + str(window/16) + '_f_' + str(num_features) + '.npy',
+                train_switch)
+    np.save('data/qal_test_utterance_w_' + str(window/16) + '_f_' + str(num_features) + '.npy',
+                test_utterance)
+    np.save('data/qual_test_switch_w_' + str(window/16) + '_f_' + str(num_features) + '.npy',
+                test_switch)
+
+    print('Total missing word alignments: ' + str(missing_word_alignments))
+    print('Total number of collisions: ' + str(num_collision))
+    print('Total number of misalignments: ' + str(misalignments))
+
+    return
 
 def load(window, num_features, test=False):
     if test:
