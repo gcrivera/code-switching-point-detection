@@ -159,28 +159,29 @@ def extract_with_test_utterance(window, num_features):
 
 def load(window, num_features, test=False):
     if test:
-        switch = np.load('data/test_switch_w_' + str(window) + '_f_' + str(num_features) + '.npy')
-        non_switch = np.load('data/test_non_switch_w_' + str(window) + '_f_' + str(num_features) + '.npy')
+        switch = np.load('data/qual_test_utterance_w_' + str(window) + '_f_' + str(num_features) + '.npy')
+        non_switch = np.load('data/qual_test_switch_w_' + str(window) + '_f_' + str(num_features) + '.npy')
     else:
-        switch = np.load('data/train_switch_w_' + str(window) + '_f_' + str(num_features) + '.npy')
-        non_switch = np.load('data/train_non_switch_w_' + str(window) + '_f_' + str(num_features) + '.npy')
+        switch = np.load('data/qual_train_switch_w_' + str(window) + '_f_' + str(num_features) + '.npy')
+        non_switch = np.load('data/qual_train_non_switch_w_' + str(window) + '_f_' + str(num_features) + '.npy')
 
-    resample = RandomOverSampler()
+    # resample = RandomOverSampler()
 
-    non_switch = non_switch[:int(non_switch.shape[0] / 10)]
-    X = np.concatenate((switch, non_switch))
-    y = np.concatenate((np.zeros(switch.shape[0]), np.ones(non_switch.shape[0])))
-    X_res, y_res = resample.fit_resample(X, y)
+    # non_switch = non_switch[:int(non_switch.shape[0] / 10)]
+    # X = np.concatenate((switch, non_switch))
+    # y = np.concatenate((np.zeros(switch.shape[0]), np.ones(non_switch.shape[0])))
+    # X_res, y_res = resample.fit_resample(X, y)
+    #
+    # switch = []
+    # non_switch = []
+    # for i in range(X_res.shape[0]):
+    #     if y_res[i] == 0:
+    #         switch.append(X_res[i])
+    #     else:
+    #         non_switch.append(X_res[i])
 
-    switch = []
-    non_switch = []
-    for i in range(X_res.shape[0]):
-        if y_res[i] == 0:
-            switch.append(X_res[i])
-        else:
-            non_switch.append(X_res[i])
-
-    return (np.array(switch), np.array(non_switch))
+    # return (np.array(switch), np.array(non_switch))
+    return (switch, non_switch)
 
 def resample():
     test_switch = np.load('data/test_switch_w_64_f_20.npy')
