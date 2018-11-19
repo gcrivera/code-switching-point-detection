@@ -63,8 +63,8 @@ def extract_with_test_utterance(window, num_features):
         start = float(utterance_data_list[-2])
         stop = float(utterance_data_list[-1])
 
-        if j < len(transcription_lines) - 1:
-            line_data_1 = transcription_lines[j+1].split()
+        if i < len(transcription_lines) - 1:
+            line_data_1 = transcription_lines[i+1].split()
             utterance_data_1 = line_data_1[0]
             utterance_data_list_1 = utterance_data_1.split('_')
             alignment_identifier_1 = utterance_data_1.split('.')[0]
