@@ -1,6 +1,6 @@
-# import bob.learn.em as em
+import bob.learn.em as em
 import numpy as np
-# from bob.io.base import HDF5File
+from bob.io.base import HDF5File
 
 def fit_ubm(switch_data, non_switch_data, num_components, save_path):
     print('Generating UBM...')
@@ -29,3 +29,9 @@ def fit_adap(switch_data, non_switch_data, ubm, num_components, save_path):
 def predict(switch_data, non_switch_data, switch_gmm, non_switch_gmm):
     return {'switch': list(map(lambda x: (switch_gmm.log_likelihood(x), non_switch_gmm.log_likelihood(x)), switch_data)),
             'non_switch': list(map(lambda x: (switch_gmm.log_likelihood(x), non_switch_gmm.log_likelihood(x)), non_switch_data))}
+
+def switch_ll(data, switch_gmm):
+    def get_lls(x):
+        return list(map(lambda y: switch_gmm.log_likelihood(y), x)) 
+
+    return list(map(lambda x: (get_lls(x[0]), x[1]), data))

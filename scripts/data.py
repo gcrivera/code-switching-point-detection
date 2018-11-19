@@ -14,10 +14,9 @@ def load_qual_test():
     data = []
     for i in range(test_utterance.shape[0]):
         features = test_utterance[i]
-        features[~(features==0).all(1)]
-        switches = filter(lambda x: x != 0, test_switch[i])
+        features = features[~(features==0).all(1)]
+        switches = list(filter(lambda x: x != 0, test_switch[i]))
         data.append((features, switches))
-    print(data)
     return data
 
 # format of test data:
@@ -390,12 +389,12 @@ def extract(window, num_features):
 
         record_switch = False
         switch_idxs = []
-        for i in range(len(utterance_words)):
-            word = utterance_words[i]
-            if (word == '<non-MSA>' and i != 0) or word == '</non-MSA>':
+        for j in range(len(utterance_words)):
+            word = utterance_words[j]
+            if (word == '<non-MSA>' and j != 0) or word == '</non-MSA>':
                 record_switch = True
                 continue
-            elif word == '<non-MSA>' and i == 0:
+            elif word == '<non-MSA>' and j == 0:
                 continue
             else:
                 try:
@@ -422,17 +421,17 @@ def extract(window, num_features):
                         switch_idxs.append(idx+2)
                     record_switch = False
 
-        for i in range(Y.shape[1]):
+        for j in range(Y.shape[1]):
             if i in switch_idxs:
                 if test:
-                    test_switch.append(Y[:,i])
+                    test_switch.append(Y[:,j])
                 else:
-                    train_switch.append(Y[:,i])
+                    train_switch.append(Y[:,j])
             else:
                 if test:
-                    test_non_switch.append(Y[:,i])
+                    test_non_switch.append(Y[:,j])
                 else:
-                    train_non_switch.append(Y[:,i])
+                    train_non_switch.append(Y[:,j])
 
     np.save('data/train_non_switch_w_' + str(window/16) + '_f_' + str(num_features) + '.npy',
                 train_non_switch)

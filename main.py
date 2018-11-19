@@ -1,6 +1,6 @@
 import argparse
-# import bob.learn.em as em
-# from bob.io.base import HDF5File
+import bob.learn.em as em
+from bob.io.base import HDF5File
 from scripts import data, classify, evaluate
 
 parser = argparse.ArgumentParser(description='Baseline Code-switching Classifier')
@@ -26,14 +26,17 @@ if __name__ == '__main__':
         ubm = classify.fit_ubm(switch_data, non_switch_data, args.num_components, args.save_path)
         switch_gmm = classify.fit_adap(switch_data, non_switch_data, ubm, args.num_components, args.save_path)
     if args.test:
-        switch_data, non_switch_data = data.load(args.window, args.num_features, test=True)
+        test_data = data.load_qual_test()
+        # switch_data, non_switch_data = data.load(args.window, args.num_features, test=True)
         if not args.train:
             try:
                 switch_gmm = em.GMMMachine(HDF5File(args.load_path + 'switch.h5'))
-                non_switch_gmm = em.GMMMachine(HDF5File(args.load_path + 'non_switch.h5'))
+                # non_switch_gmm = em.GMMMachine(HDF5File(args.load_path + 'non_switch.h5'))
             except :
                 print("Models not found."); exit()
-        scores = classify.predict(switch_data, non_switch_data, switch_gmm, non_switch_gmm)
-        Y,Y_pred = evaluate.get_predictions(scores)
-        evaluate.evaluate(Y, Y_pred)
+        ll = classify.switch_ll(test_data, switch_gmm)
+        evaluate.qual_test(ll, 1)
+        # scores = classify.predict(switch_data, non_switch_data, switch_gmm, non_switch_gmm)
+        # Y,Y_pred = evaluate.get_predictions(scores)
+        # evaluate.evaluate(Y, Y_pred)
         # evaluate.confusion_matrix(Y, Y_pred)
