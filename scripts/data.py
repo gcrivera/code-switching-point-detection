@@ -63,8 +63,8 @@ def extract_with_test_utterance(window, num_features):
         start = float(utterance_data_list[-2])
         stop = float(utterance_data_list[-1])
 
-        if i < len(transcription_lines) - 1:
-            line_data_1 = transcription_lines[i+1].split()
+        if j < len(transcription_lines) - 1:
+            line_data_1 = transcription_lines[j+1].split()
             utterance_data_1 = line_data_1[0]
             utterance_data_list_1 = utterance_data_1.split('_')
             alignment_identifier_1 = utterance_data_1.split('.')[0]
@@ -110,12 +110,12 @@ def extract_with_test_utterance(window, num_features):
 
         record_switch = False
         switch_idxs = []
-        for i in range(len(utterance_words)):
-            word = utterance_words[i]
-            if (word == '<non-MSA>' and i != 0) or word == '</non-MSA>':
+        for j in range(len(utterance_words)):
+            word = utterance_words[j]
+            if (word == '<non-MSA>' and j != 0) or word == '</non-MSA>':
                 record_switch = True
                 continue
-            elif word == '<non-MSA>' and i == 0:
+            elif word == '<non-MSA>' and j == 0:
                 continue
             else:
                 try:
@@ -142,12 +142,12 @@ def extract_with_test_utterance(window, num_features):
                         switch_idxs.append(idx+2)
                     record_switch = False
 
-        if i > test_idx:
-            for i in range(Y.shape[1]):
-                if i in switch_idxs:
-                    train_switch.append(Y[:,i])
+        if i < test_idx:
+            for j in range(Y.shape[1]):
+                if j in switch_idxs:
+                    train_switch.append(Y[:,j])
                 else:
-                    train_non_switch.append(Y[:,i])
+                    train_non_switch.append(Y[:,j])
         else:
             Y = np.transpose(Y)
             pad_utterance = np.zeros((max_length - Y.shape[0], num_features*3))
@@ -155,14 +155,11 @@ def extract_with_test_utterance(window, num_features):
             test_utterance.append(np.concatenate((Y, pad_utterance)))
             test_switch.append(np.concatenate((switch_idxs, pad_switch)))
 
-        print test_utterance
-        print test_switch
-
     np.save('data/qual_train_non_switch_w_' + str(window/16) + '_f_' + str(num_features) + '.npy',
                 train_non_switch)
     np.save('data/qual_train_switch_w_' + str(window/16) + '_f_' + str(num_features) + '.npy',
                 train_switch)
-    np.save('data/qal_test_utterance_w_' + str(window/16) + '_f_' + str(num_features) + '.npy',
+    np.save('data/qual_test_utterance_w_' + str(window/16) + '_f_' + str(num_features) + '.npy',
                 test_utterance)
     np.save('data/qual_test_switch_w_' + str(window/16) + '_f_' + str(num_features) + '.npy',
                 test_switch)
