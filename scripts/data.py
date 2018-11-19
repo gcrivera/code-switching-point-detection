@@ -7,6 +7,19 @@ from random import shuffle
 import soundfile as sf
 from tqdm import tqdm
 
+def load_qual_test():
+    test_utterance = np.load('data/qual_test_utterance_w_64_f_20.npy')
+    test_switch = np.load('data/qual_test_switch_w_64_f_20.npy')
+
+    data = []
+    for i in range(test_utterance.shape[0]):
+        features = test_utterance[i]
+        features[~(features==0).all(1)]
+        switches = filter(lambda x: x != 0, test_switch[i])
+        data.append((features, switches))
+    print(data)
+    return data
+
 # format of test data:
 #   test_utterance -> array 3d utterance x frames x features (padded with zeros)
 #   test_switch -> array 2d utterance x frames (padded with zeros) 1 if switch point
@@ -129,7 +142,7 @@ def extract_with_test_utterance(window, num_features):
                         switch_idxs.append(idx+2)
                     record_switch = False
 
-        if i < test_idx:
+        if i > test_idx:
             for i in range(Y.shape[1]):
                 if i in switch_idxs:
                     train_switch.append(Y[:,i])
@@ -141,6 +154,9 @@ def extract_with_test_utterance(window, num_features):
             pad_switch = np.zeros(max_length - len(switch_idxs))
             test_utterance.append(np.concatenate((Y, pad_utterance)))
             test_switch.append(np.concatenate((switch_idxs, pad_switch)))
+
+        print test_utterance
+        print test_switch
 
     np.save('data/qual_train_non_switch_w_' + str(window/16) + '_f_' + str(num_features) + '.npy',
                 train_non_switch)
